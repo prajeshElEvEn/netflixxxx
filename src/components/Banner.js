@@ -1,22 +1,43 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import BannerImage from '../assets/images/banner.jpg'
+import axios from '../app/service/axios'
+import requests from '../features/movies/movieService'
 
 const Banner = () => {
+    const [movie, setMovie] = useState([])
+
     const truncate = (str, n) => {
         return str?.length > n ? str.substr(0, n - 1) + "..." : str;
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const request = await axios.get(
+                requests.fetchNetflixOriginals
+            )
+            setMovie(
+                request.data.results[
+                Math.floor(Math.random() * request.data.results.length - 1)
+                ]
+            )
+            return request
+        }
+        fetchData()
+    }, [])
+
+
     return (
         <div
             className="banner"
             style={{
+                backgroundImage: `url("https://image.tmdb.org/t/p/original/${movie?.backdrop_path || BannerImage}")`,
                 backgroundSize: "cover",
-                backgroundImage: `url("${BannerImage}")`,
                 backgroundPosition: "center center"
             }}
         >
             <div className="banner-items">
                 <div className="banner-title">
-                    Movie Title
+                    {movie?.title || movie?.name || movie?.original_name}
                 </div>
                 <div className="banner-btns">
                     <button className="banner-btn">Play</button>
@@ -24,7 +45,7 @@ const Banner = () => {
                 </div>
                 <div className="banner-desc">
                     {
-                        truncate(" Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque unde voluptatem quae repellendus assumenda id aperiam facere repudiandae vero. Dolorum similique recusandae reprehenderit eaque eos eum laudantium saepe laboriosam eveniet? ", 200)
+                        truncate(movie?.overview, 200)
                     }
                 </div>
             </div>
